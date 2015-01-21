@@ -58,8 +58,8 @@ func init() {
 				for port := uint16(6061); port != 6060; port++ {
 					var err error
 					l, err = net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
-					if err != nil {
-						continue
+					if err == nil {
+						break
 					}
 				}
 				if l == nil {
