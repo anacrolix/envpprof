@@ -67,6 +67,7 @@ func init() {
 					return
 				}
 				defer l.Close()
+				log.Printf("envpprof serving http://%s", l.Addr())
 				log.Printf("error serving http on envpprof listener: %s", http.Serve(l, nil))
 			}()
 		case "cpu":
