@@ -39,6 +39,10 @@ func Stop() {
 }
 
 func init() {
+	_var := os.Getenv("GOPPROF")
+	if _var == "" {
+		return
+	}
 	for _, item := range strings.Split(os.Getenv("GOPPROF"), ",") {
 		equalsPos := strings.IndexByte(item, '=')
 		var key, value string
