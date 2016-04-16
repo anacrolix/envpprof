@@ -91,6 +91,8 @@ func init() {
 			runtime.SetBlockProfileRate(1)
 		case "heap":
 			heap = true
+		default:
+			log.Printf("unexpected GOPPROF key %q", key)
 		}
 	}
 }
