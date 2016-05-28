@@ -38,6 +38,26 @@ func Stop() {
 	}
 }
 
+func startHTTP() {
+	var l net.Listener
+	for port := uint16(6061); port != 6060; port++ {
+		var err error
+		l, err = net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
+		if err == nil {
+			break
+		}
+	}
+	if l == nil {
+		log.Print("unable to create envpprof listener for http")
+		return
+	}
+	log.Printf("envpprof serving http://%s", l.Addr())
+	go func() {
+		defer l.Close()
+		log.Printf("error serving http on envpprof listener: %s", http.Serve(l, nil))
+	}()
+}
+
 func init() {
 	_var := os.Getenv("GOPPROF")
 	if _var == "" {
@@ -57,23 +77,7 @@ func init() {
 		}
 		switch key {
 		case "http":
-			go func() {
-				var l net.Listener
-				for port := uint16(6061); port != 6060; port++ {
-					var err error
-					l, err = net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
-					if err == nil {
-						break
-					}
-				}
-				if l == nil {
-					log.Print("unable to create envpprof listener for http")
-					return
-				}
-				defer l.Close()
-				log.Printf("envpprof serving http://%s", l.Addr())
-				log.Printf("error serving http on envpprof listener: %s", http.Serve(l, nil))
-			}()
+			startHTTP()
 		case "cpu":
 			os.Mkdir(pprofDir, 0750)
 			f, err := ioutil.TempFile(pprofDir, "cpu")
