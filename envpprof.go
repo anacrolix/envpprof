@@ -1,6 +1,7 @@
 package envpprof
 
 import (
+	"expvar"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -11,6 +12,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"runtime/pprof"
+	"strconv"
 	"strings"
 )
 
@@ -58,7 +60,14 @@ func startHTTP() {
 	}()
 }
 
+type numGoroutine struct{}
+
+func (numGoroutine) String() string {
+	return strconv.FormatInt(int64(runtime.NumGoroutine()), 10)
+}
+
 func init() {
+	expvar.Publish("numGoroutine", numGoroutine{})
 	_var := os.Getenv("GOPPROF")
 	if _var == "" {
 		return
