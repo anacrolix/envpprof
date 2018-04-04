@@ -104,6 +104,8 @@ func init() {
 			runtime.SetBlockProfileRate(1)
 		case "heap":
 			heap = true
+		case "mutex":
+			runtime.SetMutexProfileFraction(1)
 		default:
 			log.Printf("unexpected GOPPROF key %q", key)
 		}
