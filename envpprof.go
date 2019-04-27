@@ -12,7 +12,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"runtime/pprof"
-	"strconv"
 	"strings"
 )
 
@@ -60,14 +59,8 @@ func startHTTP() {
 	}()
 }
 
-type numGoroutine struct{}
-
-func (numGoroutine) String() string {
-	return strconv.FormatInt(int64(runtime.NumGoroutine()), 10)
-}
-
 func init() {
-	expvar.Publish("numGoroutine", numGoroutine{})
+	expvar.Publish("numGoroutine", expvar.Func(func() interface{} { return runtime.NumGoroutine() }))
 	_var := os.Getenv("GOPPROF")
 	if _var == "" {
 		return
