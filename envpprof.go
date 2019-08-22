@@ -4,7 +4,6 @@ import (
 	"expvar"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net"
 	"net/http"
 	_ "net/http/pprof"
@@ -13,6 +12,8 @@ import (
 	"runtime"
 	"runtime/pprof"
 	"strings"
+
+	"github.com/anacrolix/log"
 )
 
 var (
