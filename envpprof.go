@@ -53,7 +53,7 @@ func startHTTP() {
 		log.Print("unable to create envpprof listener for http")
 		return
 	}
-	log.Printf("envpprof serving http://%s", l.Addr())
+	log.Printf("(pid=%d) envpprof serving http://%s", os.Getpid(), l.Addr())
 	go func() {
 		defer l.Close()
 		log.Printf("error serving http on envpprof listener: %s", http.Serve(l, nil))
