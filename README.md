@@ -1,5 +1,7 @@
 # envpprof
 
+[![pkg.go.dev badge](https://img.shields.io/badge/pkg.go.dev-reference-blue)](https://pkg.go.dev/github.com/anacrolix/envpprof)
+
 Allows run-time configuration of Go's pprof features and default HTTP mux using the environment variable `GOPPROF`. Import the package with `import _ "github.com/anacrolix/envpprof"`. `envpprof` has an `init` function that will run at process initialization that checks the value of the `GOPPROF` environment variable. The variable can contain a comma-separated list of values, for example `GOPPROF=http,block`. The supported keys are:
 
 Key | Effect
