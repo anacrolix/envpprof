@@ -65,7 +65,7 @@ func startHTTP(value string) {
 		if err == nil {
 			addr = value
 		} else {
-			addr = "localhost:"+value
+			addr = "localhost:" + value
 		}
 		l, err = net.Listen("tcp", addr)
 		if err != nil {
