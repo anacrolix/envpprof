@@ -1,6 +1,6 @@
 module github.com/anacrolix/envpprof
 
-go 1.18
+go 1.24
 
 require (
 	github.com/anacrolix/generics v0.1.0

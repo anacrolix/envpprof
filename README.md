@@ -12,6 +12,8 @@ import _ "github.com/anacrolix/envpprof"
 
 Importing the package also publishes a `numGoroutine` [expvar](https://pkg.go.dev/expvar).
 
+Requires Go 1.24 or later.
+
 ## Keys
 
 Key | Effect
