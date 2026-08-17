@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"testing"
 	"weak"
 
 	"github.com/anacrolix/log"
@@ -149,8 +148,10 @@ func Init() (stop func()) {
 	return makeStopFunc(strong)
 }
 
-// Runs main test suite with clean handled for you.
-func TestMain(m *testing.M) {
+// Runs main test suite with clean handled for you. Takes an interface rather
+// than *testing.M so this package doesn't pull "testing" into non-test builds;
+// *testing.M satisfies it.
+func TestMain(m interface{ Run() int }) {
 	stop := Init()
 	code := m.Run()
 	stop()
