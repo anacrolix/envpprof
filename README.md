@@ -19,7 +19,7 @@ Requires Go 1.24 or later.
 Key | Effect
 --- | ------
 `http` | Serves the default HTTP muxer [`"net/http".DefaultServeMux`](https://pkg.go.dev/net/http#pkg-variables). With no value, it listens on `localhost` on the first free TCP port from `6061` to `6070`, or on a port chosen by the OS if those are all taken. With a value, that value is used as the listen address: a bare port (`http=6060`) is taken as `localhost:6060`, otherwise it's used as a full `host:port` (`http=:6060`, `http=0.0.0.0:6060`). The PID and the resolved address are logged. `DefaultServeMux` is frequently the default location to expose status and debugging endpoints, including those provided by [`net/http/pprof`](https://pkg.go.dev/net/http/pprof), which `envpprof` imports for you. Failing to listen on an explicitly given address panics; a failure to find a free port when no value is given is only logged.
-`cpu` | Calls [`"runtime/pprof".StartCPUProfile`](https://pkg.go.dev/runtime/pprof#StartCPUProfile), writing to a temporary file in `$HOME/pprof` named with the prefix `cpu`. `Stop` must run for the profile to be flushed and usable.
+`cpu` | Calls [`"runtime/pprof".StartCPUProfile`](https://pkg.go.dev/runtime/pprof#StartCPUProfile), writing to a file in the profile directory (see below) named with the prefix `cpu`. `Stop` must run for the profile to be flushed and usable.
 `trace` | Calls [`"runtime/trace".Start`](https://pkg.go.dev/runtime/trace#Start), writing to a `trace`-prefixed file. Like `cpu`, it needs `Stop` to flush.
 `fgprof` | Runs [`github.com/felixge/fgprof`](https://github.com/felixge/fgprof) in pprof format, writing to an `fgprof`-prefixed file. Unlike `cpu`, this samples off-CPU (blocked) time too. Needs `Stop` to flush.
 `heap` | Writes the `heap` profile to a `heap`-prefixed file when `Stop` is invoked. No run-time configuration is needed to collect it.
@@ -28,7 +28,7 @@ Key | Effect
 
 The `block` and `mutex` rates are the "safe rates" recommended by the [Datadog Go profiler notes](https://github.com/DataDog/go-profiler-notes/blob/main/guide/README.md#go-profilers).
 
-Profile files are created in `$HOME/pprof` (the directory and its parents are created if missing) with a random suffix, and are never removed. Their names are logged.
+Profile files are created in `$HOME/pprof`, or in `pprof` under the [temporary directory](https://pkg.go.dev/os#TempDir) if there's no home directory. The directory and its parents are created if missing. Files get a random suffix, are never removed, and their names are logged.
 
 ## Stopping
 

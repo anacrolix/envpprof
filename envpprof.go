@@ -14,9 +14,17 @@ import (
 	"github.com/anacrolix/log"
 )
 
-var (
-	pprofDir = filepath.Join(os.Getenv("HOME"), "pprof")
-)
+var pprofDir = defaultPprofDir()
+
+// Profiles go in the user's home directory, or the temporary directory if there isn't one (for
+// example when $HOME isn't set in containers and services).
+func defaultPprofDir() string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return filepath.Join(os.TempDir(), "pprof")
+	}
+	return filepath.Join(home, "pprof")
+}
 
 // Stop ends CPU profiling, waiting for writes to complete. If heap profiling is enabled, it also
 // writes the heap profile to a file. Stop should be deferred from main if cpu or heap profiling
