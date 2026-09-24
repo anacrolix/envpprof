@@ -8,7 +8,7 @@ Run-time configuration of Go's pprof features, and of the default HTTP mux, via 
 import _ "github.com/anacrolix/envpprof"
 ```
 
-`envpprof` has an `init` function that runs at process initialization and checks `GOPPROF`. The variable is a comma-separated list of keys, each optionally taking a `=value`, for example `GOPPROF=http,block` or `GOPPROF=http=:6060,cpu`.
+`envpprof` has an `init` function that runs at process initialization and checks `GOPPROF`. The variable is a comma-separated list of keys, each optionally taking a `=value`, for example `GOPPROF=http,block` or `GOPPROF=http=:6060,cpu`. Whitespace around keys and values and blank items are ignored, so `GOPPROF="cpu, heap,"` works too.
 
 Importing the package also publishes a `numGoroutine` [expvar](https://pkg.go.dev/expvar).
 

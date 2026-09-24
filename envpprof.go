@@ -90,25 +90,17 @@ func init() {
 		return
 	}
 	needStop := false
-	for _, item := range strings.Split(envValue, ",") {
-		equalsPos := strings.IndexByte(item, '=')
-		var key, value string
-		if equalsPos < 0 {
-			key = item
-		} else {
-			key = item[:equalsPos]
-			value = item[equalsPos+1:]
-		}
-		switch key {
+	for _, item := range parseGOPPROF(envValue) {
+		switch item.key {
 		case "http":
-			startHTTP(value)
+			startHTTP(item.value)
 		default:
-			profiler, ok := profilers[key]
+			profiler, ok := profilers[item.key]
 			if ok {
-				profiler.start(key)
+				profiler.start(item.key)
 				needStop = true
 			} else {
-				log.Printf("unexpected GOPPROF key %q", key)
+				log.Printf("unexpected GOPPROF key %q", item.key)
 			}
 		}
 	}
@@ -122,6 +114,23 @@ func init() {
 // Contains a pointer so it isn't a tiny pointer-free allocation: the runtime may batch those
 // together, and then the cleanup may never run. See runtime.AddCleanup.
 type forgotStopValueType struct{ _ *byte }
+
+type gopprofItem struct {
+	key, value string
+}
+
+// Parses a comma-separated list of keys with optional =values. Whitespace around keys and values
+// is ignored, as are blank items, such as from a trailing comma.
+func parseGOPPROF(envValue string) (items []gopprofItem) {
+	for _, item := range strings.Split(envValue, ",") {
+		if strings.TrimSpace(item) == "" {
+			continue
+		}
+		key, value, _ := strings.Cut(item, "=")
+		items = append(items, gopprofItem{strings.TrimSpace(key), strings.TrimSpace(value)})
+	}
+	return
+}
 
 func makeForget() (*forgotStopValueType, runtime.Cleanup) {
 	forgot := new(forgotStopValueType)
