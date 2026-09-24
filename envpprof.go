@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"weak"
 
 	"github.com/anacrolix/log"
 )
@@ -23,11 +22,7 @@ var (
 // writes the heap profile to a file. Stop should be deferred from main if cpu or heap profiling
 // are to be used through envpprof.
 func Stop() {
-	stop()
-}
-
-// Replaced to track forgetting to Stop-by-GC.
-var stop = func() {
+	cleanupForgotStop.Stop()
 	stopProfilers()
 }
 
@@ -72,7 +67,10 @@ func startHTTP(value string) {
 }
 
 var (
-	forgotStopIfGCed  weak.Pointer[forgotStopValueType]
+	// Strong reference to the value watched for forgetting to Stop. The package holds it until
+	// Init hands it off to the stop function it returns: there's no way to tell if the
+	// package-level Stop will be called, but a dropped func can be detected by the GC.
+	forgotStopToken   *forgotStopValueType
 	cleanupForgotStop runtime.Cleanup
 )
 
@@ -109,23 +107,13 @@ func init() {
 	// This only installs the warning if profiling is enabled. But it could be for any consumer of
 	// envpprof...
 	if needStop {
-		strong, cleanup := makeForget()
-		forgotStopIfGCed = weak.Make(strong)
-		cleanupForgotStop = cleanup
-		stop = makeStopFunc(strong)
+		forgotStopToken, cleanupForgotStop = makeForget()
 	}
 }
 
-func makeStopFunc(strong *forgotStopValueType) func() {
-	return func() {
-		cleanupForgotStop.Stop()
-		stopProfilers()
-		_ = strong
-	}
-}
-
-// I suspect struct{} silently fails (or succeeds) as it might not be on the heap.
-type forgotStopValueType = int
+// Contains a pointer so it isn't a tiny pointer-free allocation: the runtime may batch those
+// together, and then the cleanup may never run. See runtime.AddCleanup.
+type forgotStopValueType struct{ _ *byte }
 
 func makeForget() (*forgotStopValueType, runtime.Cleanup) {
 	forgot := new(forgotStopValueType)
@@ -139,13 +127,17 @@ func makeForget() (*forgotStopValueType, runtime.Cleanup) {
 }
 
 // Synchronous init that returns the cleanup function directly with no risk. Future proofing for a
-// safer way to do it.
+// safer way to do it. If profiling is enabled and the returned func is garbage collected without
+// being called, a warning is logged.
 func Init() (stop func()) {
-	// Extract the strong pointer created by the package init. Eventually we want to make it
-	// synchronously here.
-	strong := forgotStopIfGCed.Value()
-	// Allocate a new func since that seems to work with GC better than a global variable.
-	return makeStopFunc(strong)
+	// Take ownership of the token from the package so that only the returned func keeps it alive.
+	token := forgotStopToken
+	forgotStopToken = nil
+	return func() {
+		Stop()
+		// Keep the token reachable until the cleanup has been stopped.
+		runtime.KeepAlive(token)
+	}
 }
 
 // Runs main test suite with clean handled for you. Takes an interface rather

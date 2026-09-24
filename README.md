@@ -49,7 +49,7 @@ func main() {
 }
 ```
 
-[`Init`](https://pkg.go.dev/github.com/anacrolix/envpprof#Init) returns the stop function directly, which is harder to forget than the package-level [`Stop`](https://pkg.go.dev/github.com/anacrolix/envpprof#Stop). If profiling was enabled and the stop function is garbage collected without ever being called, `envpprof` logs a warning that `Stop` was forgotten.
+[`Init`](https://pkg.go.dev/github.com/anacrolix/envpprof#Init) returns the stop function directly, which is harder to forget than the package-level [`Stop`](https://pkg.go.dev/github.com/anacrolix/envpprof#Stop). If profiling was enabled and the function returned by `Init` is garbage collected without ever being called, `envpprof` logs a warning that `Stop` was forgotten. There's no such check if you only use the package-level `Stop`.
 
 For tests, [`TestMain`](https://pkg.go.dev/github.com/anacrolix/envpprof#TestMain) handles the whole lifecycle:
 
