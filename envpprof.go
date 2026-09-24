@@ -35,12 +35,12 @@ func stopProfilers() {
 func startHTTP(value string) {
 	var l net.Listener
 	if value == "" {
-		for port := uint16(6061); port != 6060; port++ {
-			var err error
-			l, err = net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
-			if err == nil {
-				break
-			}
+		// Try a few ports near the conventional pprof port 6060, then let the OS pick one.
+		for port := 6061; port <= 6070 && l == nil; port++ {
+			l, _ = net.Listen("tcp", fmt.Sprintf("localhost:%d", port))
+		}
+		if l == nil {
+			l, _ = net.Listen("tcp", "localhost:0")
 		}
 		if l == nil {
 			log.Print("unable to create envpprof listener for http")
