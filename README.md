@@ -28,7 +28,7 @@ Key | Effect
 
 The `block` and `mutex` rates are the "safe rates" recommended by the [Datadog Go profiler notes](https://github.com/DataDog/go-profiler-notes/blob/main/guide/README.md#go-profilers).
 
-Profile files are created in `$HOME/pprof`, or in `pprof` under the [temporary directory](https://pkg.go.dev/os#TempDir) if there's no home directory. The directory and its parents are created if missing. Files get a random suffix, are never removed, and their names are logged.
+Profile files are created in `$HOME/pprof`, or in `pprof` under the [temporary directory](https://pkg.go.dev/os#TempDir) if there's no home directory. The directory and its parents are created if missing. Files are named `<key>-<pid>-<random>.pprof` (`.out` for `trace`), are never removed, and their names are logged.
 
 ## Stopping
 

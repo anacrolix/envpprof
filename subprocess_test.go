@@ -80,7 +80,8 @@ func TestStopTwiceWritesProfilesOnce(t *testing.T) {
 	}
 	counts := make(map[string]int)
 	for _, e := range entries {
-		counts[strings.TrimRight(e.Name(), "0123456789")]++
+		profile, _, _ := strings.Cut(e.Name(), "-")
+		counts[profile]++
 	}
 	for _, name := range []string{"heap", "block", "mutex", "cpu", "fgprof"} {
 		if counts[name] != 1 {

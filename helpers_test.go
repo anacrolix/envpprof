@@ -22,3 +22,15 @@ func TestDefaultPprofDir(t *testing.T) {
 		t.Errorf("with HOME unset: got %q, want %q", got, want)
 	}
 }
+
+func TestProfileFilePattern(t *testing.T) {
+	for _, tc := range []struct{ profile, want string }{
+		{"cpu", "cpu-42-*.pprof"},
+		{"heap", "heap-42-*.pprof"},
+		{"trace", "trace-42-*.out"},
+	} {
+		if got := profileFilePattern(tc.profile, 42); got != tc.want {
+			t.Errorf("profileFilePattern(%q) = %q, want %q", tc.profile, got, tc.want)
+		}
+	}
+}
