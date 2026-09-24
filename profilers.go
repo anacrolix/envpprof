@@ -105,14 +105,17 @@ func (me *pprofWrite) start(name string) {
 }
 
 func (me *pprofWrite) stop() {
-	if me.pprofProfileName == "" {
+	name := me.pprofProfileName
+	if name == "" {
 		return
 	}
-	f := newPprofFileOrLog(me.pprofProfileName)
+	// Only write the profile once, even if stopped repeatedly.
+	me.pprofProfileName = ""
+	f := newPprofFileOrLog(name)
 	if f == nil {
 		return
 	}
 	defer f.Close()
-	pprof.Lookup(me.pprofProfileName).WriteTo(f, 0)
-	logWroteProfile(f, me.pprofProfileName)
+	pprof.Lookup(name).WriteTo(f, 0)
+	logWroteProfile(f, name)
 }
