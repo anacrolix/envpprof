@@ -11,8 +11,12 @@ func logWroteProfile(f *os.File, profile string) {
 }
 
 func newPprofFileOrLog(profile string) (f *os.File) {
-	os.Mkdir(pprofDir, 0750)
-	f, err := os.CreateTemp(pprofDir, profile)
+	err := os.MkdirAll(pprofDir, 0750)
+	if err != nil {
+		log.Printf("error creating pprof dir for %v profile: %v", profile, err)
+		return nil
+	}
+	f, err = os.CreateTemp(pprofDir, profile)
 	if err != nil {
 		log.Printf("error creating %v pprof file: %v", profile, err)
 	}

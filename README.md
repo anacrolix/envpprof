@@ -28,7 +28,7 @@ Key | Effect
 
 The `block` and `mutex` rates are the "safe rates" recommended by the [Datadog Go profiler notes](https://github.com/DataDog/go-profiler-notes/blob/main/guide/README.md#go-profilers).
 
-Profile files are created in `$HOME/pprof` (the directory is created if missing) with a random suffix, and are never removed. Their names are logged.
+Profile files are created in `$HOME/pprof` (the directory and its parents are created if missing) with a random suffix, and are never removed. Their names are logged.
 
 ## Stopping
 

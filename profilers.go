@@ -80,13 +80,19 @@ func (me *continuousWriter) stop() {
 	if me.file == nil {
 		return
 	}
-	err := me.stopFunc()
-	if err != nil {
-		log.Printf("error stopping %v profiling: %v", me.file.Name(), err)
-	}
-	me.file.Close()
-	logWroteProfile(me.file, me.profileName)
+	f := me.file
 	me.file = nil
+	stopErr := me.stopFunc()
+	if stopErr != nil {
+		log.Printf("error stopping %v profiling to %q: %v", me.profileName, f.Name(), stopErr)
+	}
+	closeErr := f.Close()
+	if closeErr != nil {
+		log.Printf("error closing %v profile %q: %v", me.profileName, f.Name(), closeErr)
+	}
+	if stopErr == nil && closeErr == nil {
+		logWroteProfile(f, me.profileName)
+	}
 }
 
 // These are builtin runtime/pprof profiles that need to be given reasonable configuration at the
@@ -115,7 +121,15 @@ func (me *pprofWrite) stop() {
 	if f == nil {
 		return
 	}
-	defer f.Close()
-	pprof.Lookup(name).WriteTo(f, 0)
-	logWroteProfile(f, name)
+	writeErr := pprof.Lookup(name).WriteTo(f, 0)
+	if writeErr != nil {
+		log.Printf("error writing %v profile to %q: %v", name, f.Name(), writeErr)
+	}
+	closeErr := f.Close()
+	if closeErr != nil {
+		log.Printf("error closing %v profile %q: %v", name, f.Name(), closeErr)
+	}
+	if writeErr == nil && closeErr == nil {
+		logWroteProfile(f, name)
+	}
 }
