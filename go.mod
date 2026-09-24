@@ -9,7 +9,6 @@ require (
 )
 
 require (
-	github.com/anacrolix/missinggo/v2 v2.10.0
 	github.com/google/pprof v0.0.0-20240227163752-401108e1b7e7 // indirect
 	golang.org/x/exp v0.0.0-20240823005443-9b4947da3948 // indirect
 )

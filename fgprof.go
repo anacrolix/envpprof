@@ -1,10 +1,10 @@
 package envpprof
 
 import (
+	"fmt"
 	"io"
 
 	g "github.com/anacrolix/generics"
-	"github.com/anacrolix/missinggo/v2/panicif"
 	"github.com/felixge/fgprof"
 )
 
@@ -16,11 +16,16 @@ var registeredFgprof = func() bool {
 		"fgprof",
 		newContinuousWriter(func(w io.Writer) (func() error, error) {
 			stop := fgprof.Start(w, fgprof.FormatPprof)
-			return func() error {
-				err := stop()
-				println("stopped fgprof")
-				panicif.Err(err)
-				return err
+			// continuousWriter logs any error returned by stop.
+			return func() (err error) {
+				// fgprof divides by the sample rate when exporting, which is zero if it's
+				// stopped before taking a sample.
+				defer func() {
+					if r := recover(); r != nil {
+						err = fmt.Errorf("fgprof panicked stopping: %v", r)
+					}
+				}()
+				return stop()
 			}, nil
 		}))
 	return true

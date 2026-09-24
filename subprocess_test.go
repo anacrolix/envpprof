@@ -73,7 +73,7 @@ func TestForgotStop(t *testing.T) {
 }
 
 func TestStopTwiceWritesProfilesOnce(t *testing.T) {
-	out, home := runHelper(t, "stop-twice", "heap,block,mutex,cpu")
+	out, home := runHelper(t, "stop-twice", "heap,block,mutex,cpu,fgprof")
 	entries, err := os.ReadDir(filepath.Join(home, "pprof"))
 	if err != nil {
 		t.Fatal(err)
@@ -82,7 +82,7 @@ func TestStopTwiceWritesProfilesOnce(t *testing.T) {
 	for _, e := range entries {
 		counts[strings.TrimRight(e.Name(), "0123456789")]++
 	}
-	for _, name := range []string{"heap", "block", "mutex", "cpu"} {
+	for _, name := range []string{"heap", "block", "mutex", "cpu", "fgprof"} {
 		if counts[name] != 1 {
 			t.Errorf("got %v %v profiles, want 1; output:\n%s", counts[name], name, out)
 		}
